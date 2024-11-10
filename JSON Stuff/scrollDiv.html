@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Move Box</title>
+<style>
+	#container {
+		position: relative;
+		width: 100%;
+		height: 100vh; /* Using viewport height to fill the screen */
+	}
+
+	#moveBoxButton {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		z-index: 1; /* Ensure button is on top of the box */
+	}
+
+	#box {
+		position: absolute;
+		background-color: blue;
+		width: 60%; /* Start with width 60% */
+		height: calc(100% - 20px); /* Height of the container minus top and bottom padding */
+		top: 10px; /* 10px from the top */
+		bottom: 10px; /* 10px from the bottom */
+		left: -60%; /* Start hidden to the left */
+		transition: left 1s ease-in-out; /* Transition left position */
+		padding: 20px;
+		color: white;
+		overflow: auto; /* Add scrollbars if content overflows */
+	}
+</style>
+</head>
+<body>
+
+<button id="moveBoxButton" onclick="moveBox()">Move Box</button>
+
+<div id="container">
+</div>
+
+<script>
+// Function to create and populate the box
+function createBox() {
+	var container = document.getElementById('container');
+	var boxContents = "<br>INSTRUCTIONS<br><div><div>1. Heat the oil in a 12-inch skillet over medium-high heat.</div></div><div><div>2. Add the shrimp and stir-fry for 3 minutes or until cooked through.</div></div><div><div>3. Remove the shrimp from the skillet.</div></div><div><div>4. Add the red bell pepper and yellow onion to the skillet and stir-fry for 2 minutes or until the vegetables are tender-crisp.</div></div><div><div>5. Add the garlic, ginger root and crushed red pepper to the skillet and stir-fry for 30 seconds. Return the shrimp to the skillet. Stir in the concentrated broth, soy sauce, sugar and water and cook for 1 minute or until the mixture is hot.</div></div><div><div>6. Remove the skillet from the heat and stir in the sesame oil.</div></div><div><div>7. Sprinkle the shrimp mixture with the sesame seeds and green onion.</div></div>";
+	
+	var box = document.createElement('div');
+	box.id = 'box';
+	box.innerHTML = boxContents;
+
+	container.appendChild(box);
+}
+
+function moveBox() {
+	var box = document.getElementById('box');
+	var moveBoxButton = document.getElementById('moveBoxButton');
+	if (box.style.left === '-60%' || box.style.left === '') { // Check if box is hidden or not moved yet
+		box.style.left = '0px'; /* Move the box to the right */
+		moveBoxButton.textContent = 'Move Back';
+	} else {
+		box.style.left = '-60%'; /* Move the box back to the left */
+		moveBoxButton.textContent = 'Move Box';
+	}
+}
+
+// Create the box when the page loads
+window.onload = createBox;
+</script>
+
+</body>
+</html>
+
+

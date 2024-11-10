@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap" rel="stylesheet">
+  <title>Display JSON Array</title>
+  <style>
+	/* Style for the div containing JSON objects with light blue background */
+	.json-object {
+	  background-color: lightblue;
+	  padding: 10px;
+	  margin-bottom: 10px;
+	  font-family: 'Poppins', sans-serif;
+	  font-style: normal;
+	  font-size: 14px;
+	  cursor: pointer; /* Add cursor style */
+	}
+
+	/* Style for the container div */
+	.container {
+	  position: fixed;
+	  left: 60%;
+	  top: 0;
+	  width: 40%;
+	  height: 100%;
+	  overflow-y: scroll;
+	  padding: 20px;
+	  box-sizing: border-box;
+	}
+
+	/* Style for the box div */
+	#box {
+	  position: fixed;
+	  left: 0;
+	  top: 0;
+	  max-width: 60%;
+	  padding: 20px;
+	  background-color: #f9f9f9;
+	  box-sizing: border-box;
+	}
+  </style>
+</head>
+<body>
+	
+	<!-- Include the getExplJSONData.js script -->
+	<script src="getJSONData.js"></script>
+	
+<!-- Container for JSON objects -->
+<div class="container" id="container"></div>
+
+<!-- Box containing instructions -->
+<div id="box">
+  <br>
+  <h2>INSTRUCTIONS</h2>
+  <div><div>1. Heat the oil in a 12-inch skillet over medium-high heat.</div></div>
+  <div><div>2. Add the shrimp and stir-fry for 3 minutes or until cooked through.</div></div>
+  <div><div>3. Remove the shrimp from the skillet.</div></div>
+  <div><div>4. Add the red bell pepper and yellow onion to the skillet and stir-fry for 2 minutes or until the vegetables are tender-crisp.</div></div>
+  <div><div>5. Add the garlic, ginger root and crushed red pepper to the skillet and stir-fry for 30 seconds. Return the shrimp to the skillet. Stir in the concentrated broth, soy sauce, sugar and water and cook for 1 minute or until the mixture is hot.</div></div>
+  <div><div>6. Remove the skillet from the heat and stir in the sesame oil.</div></div>
+  <div><div>7. Sprinkle the shrimp mixture with the sesame seeds and green onion.</div></div>
+</div>
+
+<script>
+  async function fetchDataAndDisplay() {
+	try {
+	  // Set jsonDataString var from data return from getJSONData()
+	  const jsonDataString = await getJSONData();
+
+	  // Parse the JSON string into an array to manipulate the JSON
+	  let jsonData = JSON.parse(jsonDataString);
+
+	  // Create a container for the JSON objects
+	  const container = document.getElementById('container');
+
+	  // Display each JSON object in the container
+	  jsonData.forEach(function(obj, index) {
+		// Create a div for the JSON object
+		var jsonObjectDiv = document.createElement('div');
+		jsonObjectDiv.className = 'json-object';
+		jsonObjectDiv.innerHTML = '<h3>Object ' + index + '</h3><pre>' + JSON.stringify(obj, null, 2) + '</pre>';
+
+		// Add draggable attribute
+		jsonObjectDiv.draggable = true;
+
+		// Add event listeners for drag events
+		jsonObjectDiv.addEventListener('dragstart', function(event) {
+		  event.dataTransfer.setData('text/plain', index); // Store the index of the dragged item
+		});
+
+		// Append the div to the container
+		container.appendChild(jsonObjectDiv);
+	  });
+
+	  // Add event listener for the container's drop event
+	  container.addEventListener('drop', function(event) {
+		event.preventDefault(); // Prevent default behavior
+
+		// Get the index of the dragged item
+		var indexFrom = event.dataTransfer.getData('text/plain');
+
+		// Get the index of the drop target
+		var dropTarget = event.target.closest('.json-object');
+		if (!dropTarget) return; // Ignore if drop target is not found
+		var indexTo = Array.from(container.children).indexOf(dropTarget);
+
+		// Swap the JSON objects in the array
+		var temp = jsonData[indexFrom];
+		jsonData[indexFrom] = jsonData[indexTo];
+		jsonData[indexTo] = temp;
+
+		// Re-render the JSON objects
+		container.innerHTML = '';
+		jsonData.forEach(function(obj, index) {
+		  // Create a div for the JSON object
+		  var jsonObjectDiv = document.createElement('div');
+		  jsonObjectDiv.className = 'json-object';
+		  jsonObjectDiv.innerHTML = '<h3>Object ' + index + '</h3><pre>' + JSON.stringify(obj, null, 2) + '</pre>';
+
+		  // Add draggable attribute
+		  jsonObjectDiv.draggable = true;
+
+		  // Add event listeners for drag events
+		  jsonObjectDiv.addEventListener('dragstart', function(event) {
+			event.dataTransfer.setData('text/plain', index); // Store the index of the dragged item
+		  });
+
+		  // Append the div to the container
+		  container.appendChild(jsonObjectDiv);
+		});
+	  });
+
+	  // Add event listener for the container's dragover event
+	  container.addEventListener('dragover', function(event) {
+		event.preventDefault(); // Prevent default behavior
+	  });
+
+	} catch (error) {
+	  console.error('Error fetching or displaying data:', error);
+	}
+  }
+
+  // Example of calling the function
+  fetchDataAndDisplay();
+</script>
+
+</body>
+</html>

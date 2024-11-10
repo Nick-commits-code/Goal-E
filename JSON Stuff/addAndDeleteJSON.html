@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap" rel="stylesheet">
+  <title>Display, Add, and Delete from JSON Array</title>
+  <style>
+	/* Styles as before */
+
+	.form-container {
+	  padding: 20px;
+	  margin-bottom: 20px;
+	  font-family: 'poppins';
+	  font-size: 14px;
+	}
+  </style>
+</head>
+<body>
+  <!-- Include the getExplJSONData.js script -->
+  <script src="getJSONData.js"></script>
+
+  <script>
+	async function fetchDataAndDisplay() {
+	  try {
+		// Set jsonDataString var from data return from getJSONData()
+		const jsonDataString = await getJSONData();
+
+		// Parse the JSON string into an array to manipulate the JSON
+		const jsonData = JSON.parse(jsonDataString);
+
+		// Display the entire JSON array with a header
+		document.body.innerHTML += '<div><h2>JSON Array</h2></div>';
+
+		// Loop through JSON objects and display
+		for (let index = 0; index < jsonData.length; index++) {
+		  const obj = jsonData[index];
+		  document.body.innerHTML += '<div><h3>Object ' + index + '</h3><pre>' + JSON.stringify(obj, null, 2) + '</pre></div>';
+		}
+
+	  } catch (error) {
+		console.error('Error fetching or displaying data:', error);
+	  }
+	}
+
+	async function addUserInformation() {
+	  try {
+		const firstName = document.getElementById('inputFirstName').value;
+		const lastName = document.getElementById('inputLastName').value;
+		const address = document.getElementById('inputAddress').value;
+		const city = document.getElementById('inputCity').value;
+		const state = document.getElementById('inputState').value;
+		const zip = document.getElementById('inputZip').value;
+		const email = document.getElementById('inputEmail').value;
+		const phone = document.getElementById('inputPhone').value;
+
+		const newUserObject = {
+		  FirstName: firstName,
+		  LastName: lastName,
+		  Address: address,
+		  City: city,
+		  State: state,
+		  Zip: zip,
+		  Email: email,
+		  Phone: phone,
+		};
+
+		const jsonDataString = await getJSONData();
+		const jsonData = JSON.parse(jsonDataString);
+
+		// Add the new user object to the array
+		jsonData.push(newUserObject);
+
+		// Display the updated JSON array
+		document.body.innerHTML += '<div><h3>New Object Added</h3><pre>' + JSON.stringify(newUserObject, null, 2) + '</pre></div>';
+
+		// Save the updated JSON array
+		await saveJSONData(jsonData);
+
+		// Fetch and display the updated data
+		fetchDataAndDisplay();
+	  } catch (error) {
+		console.error('Error adding user information:', error);
+	  }
+	}
+
+	async function deleteUserInformation() {
+	  try {
+		const firstNameToDelete = document.getElementById('deleteFirstName').value;
+		const lastNameToDelete = document.getElementById('deleteLastName').value;
+
+		const jsonDataString = await getJSONData();
+		let jsonData = JSON.parse(jsonDataString);
+
+		// Filter out the user to be deleted based on first and last name
+		jsonData = jsonData.filter(user => !(user.FirstName === firstNameToDelete && user.LastName === lastNameToDelete));
+
+		// Display the updated JSON array
+		document.body.innerHTML += '<div class="json-object"><h3>User Deleted</h3><pre>' + JSON.stringify({ FirstName: firstNameToDelete, LastName: lastNameToDelete }, null, 2) + '</pre></div>';
+
+		// Save the updated JSON array
+		await saveJSONData(jsonData);
+
+		// Fetch and display the updated data
+		fetchDataAndDisplay();
+	  } catch (error) {
+		console.error('Error deleting user information:', error);
+	  }
+	}
+
+	async function saveJSONData(data) {
+	  const responsePut = await fetch('https://api.jsonbin.io/v3/b/655ea5e30574da7622ca6bc1', {
+		method: 'PUT',
+		headers: {
+		  'Content-Type': 'application/json',
+		  'X-Master-Key': '$2b$10$zhqQdXWQew55ytBi6tw5teLZTtv2I49Bx0K2R7XG.8DdZ.tlirKxC',
+		},
+		body: JSON.stringify(data),
+	  });
+
+	  if (!responsePut.ok) {
+		console.error('Failed to save data:', responsePut.statusText);
+	  }
+	}
+
+	// Example of calling the functions
+	fetchDataAndDisplay();
+  </script>
+
+ <!-- Form for user input -->
+	<div class="form-container">
+	  <h2>Enter User Information:</h2>
+	  <form onsubmit="event.preventDefault(); addUserInformation();">
+		<!-- Input fields for adding user information -->
+		<label for="inputFirstName">First Name:</label>
+		<input type="text" id="inputFirstName" required><br>
+  
+		<label for="inputLastName">Last Name:</label>
+		<input type="text" id="inputLastName" required><br>
+  
+		<label for="inputAddress">Address:</label>
+		<input type="text" id="inputAddress"><br>
+  
+		<label for="inputCity">City:</label>
+		<input type="text" id="inputCity"><br>
+  
+		<label for="inputState">State:</label>
+		<input type="text" id="inputState"><br>
+  
+		<label for="inputZip">Zip:</label>
+		<input type="text" id="inputZip"><br>
+  
+		<label for="inputEmail">Email:</label>
+		<input type="text" id="inputEmail"><br>
+  
+		<label for="inputPhone">Phone:</label>
+		<input type="text" id="inputPhone"><br>
+  
+		<button type="submit">Add Information</button>
+	  </form>
+	</div>
+
+  <!-- Form for deleting user information -->
+  <div class="form-container">
+	<h2>Delete User Information:</h2>
+	<form onsubmit="event.preventDefault(); deleteUserInformation();">
+	  <label for="deleteFirstName">First Name:</label>
+	  <input type="text" id="deleteFirstName" required><br>
+
+	  <label for="deleteLastName">Last Name:</label>
+	  <input type="text" id="deleteLastName" required><br>
+
+	  <button type="submit">Delete Information</button>
+	</form>
+  </div>
+</body>
+</html>
